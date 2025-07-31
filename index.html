@@ -18,6 +18,8 @@
   <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
   <!-- CSS Files -->
   <link id="pagestyle" href="assets/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-papm6Qp1q7lF+6nKcQe5w1Yw1Q6l0e6Q5Q6l0e6Q5Q6l0e6Q5Q6l0e6Q5Q6l0e6Q5Q6l0e6Q5Q6l0e6Q5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body class="">
@@ -71,7 +73,7 @@
                 <div class="form-check form-check-info text-start">
                   <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked>
                   <label class="form-check-label" for="flexCheckDefault">
-                    I agree the <a href="javascript:;" class="text-dark font-weight-bolder">Terms and Conditions</a>
+                    I agree the <a href="https://mybrada.co.za/terms_and_conditions.html" class="text-dark font-weight-bolder">Terms and Conditions</a>
                   </label>
                 </div>
                 <div class="text-center">
@@ -89,6 +91,63 @@
     <img src="assets/img/MyBrada.png" alt="MyBrada Logo" class="logo">
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+  document.querySelector('form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const firstName = document.querySelector('input[placeholder="Name"]').value.trim();
+    const lastName = document.querySelector('input[placeholder="Last Name"]').value.trim();
+    const email = document.querySelector('input[placeholder="Email"]').value.trim();
+    const phone = document.querySelector('input[placeholder="Phone Number"]').value.trim();
+    const password = document.querySelector('input[placeholder="Password"]').value;
+    const confirmPassword = document.querySelector('input[placeholder="Confirm Password"]').value;
+    const termsChecked = document.getElementById('flexCheckDefault').checked;
+
+    // Simple validation
+    if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
+      Swal.fire('Error', 'Please fill in all fields.', 'error');
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      Swal.fire('Error', 'Please enter a valid email address.', 'error');
+      return;
+    }
+    if (password.length < 6) {
+      Swal.fire('Error', 'Password must be at least 6 characters.', 'error');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Swal.fire('Error', 'Passwords do not match.', 'error');
+      return;
+    }
+    if (!termsChecked) {
+      Swal.fire('Error', 'You must agree to the Terms and Conditions.', 'error');
+      return;
+    }
+
+    try {
+      const response = await axios.post('https://mybrada.co.za/auth/create_user.php', {
+        first_name: firstName,
+        last_name: lastName,
+        email_address: email,
+        phone_number: phone,
+        password: password
+      });
+      if (response.data && response.data.success) {
+        Swal.fire('Success', 'Account created successfully! Please check your email.', 'success');
+        document.querySelector('form').reset();
+      } else {
+        Swal.fire('Error', response.data.message || 'Registration failed.', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'An error occurred. Please try again later.', 'error');
+    }
+  });
+
+  // Change button type to submit for form submission
+  document.querySelector('button[type="button"]').setAttribute('type', 'submit');
+  </script>
   <!--   Core JS Files   -->
   <script src="assets/js/core/popper.min.js"></script>
   <script src="assets/js/core/bootstrap.min.js"></script>
